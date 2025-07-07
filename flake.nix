@@ -8,27 +8,26 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-      in
-      {
-        packages.default = pkgs.stdenv.mkDerivation {
+
+        npxBinary = pkgs.stdenv.mkDerivation {
           pname = "npx";
           version = "0.1.0";
-
           src = ./.;
-
           buildInputs = [ pkgs.gcc ];
-
           buildPhase = ''
             mkdir -p $out/bin
             gcc src/main.c -o $out/bin/npx
           '';
-
           installPhase = "true";
         };
+      in
+      {
+        packages.default = npxBinary;
 
         apps.default = {
           type = "app";
-          program = "${self.packages.${system}.default}/bin/npx";
+          program = "${npxBinary}/bin/npx";  # ← use local variable
         };
       });
+
 }
